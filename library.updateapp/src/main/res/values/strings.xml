@@ -1,0 +1,10 @@
+<resources>
+    <string name="update_dialog_downloading">升级&#8230;%d %%</string>
+    <string name="update_dialog_install">安装</string>
+    <string name="update_dialog_update">升级</string>
+    <string name="update_dialog_confirm">确定</string>
+    <string name="update_dialog_cancel">取消</string>
+    <string name="update_dialog_retry">下载失败,点击重试</string>
+    <string name="update_dialog_can_not_open_file_mime_type">无法打开此类型文件,请在应用市场下载</string>
+    <string name="update_dialog_open_permission_settings">安装应用需要打开未知来源权限,请去设置中开启权限</string>
+</resources>

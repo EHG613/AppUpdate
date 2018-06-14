@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (c) 2017 Codyy. All rights reserved.
+  -->
+
+<paths>
+    <!--<external-path path="Android/data/com.codyy.osp.n/" name="files_root" />-->
+    <external-path path="." name="external_storage_root" />
+</paths>
