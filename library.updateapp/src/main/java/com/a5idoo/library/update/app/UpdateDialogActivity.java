@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -62,17 +63,50 @@ public class UpdateDialogActivity extends AppCompatActivity {
     String strConfirm;
     @BindString(R2.string.update_dialog_cancel)
     String strCancel;
+    @BindString(R2.string.update_dialog_soon)
+    String strSoon;
     @BindString(R2.string.update_dialog_can_not_open_file_mime_type)
     String strCannotOpenFile;
     @BindString(R2.string.update_dialog_open_permission_settings)
     String strOpenPermissionSettings;
     @BindString(R2.string.update_dialog_retry)
     String strRetryDownload;
+    @BindString(R2.string.update_dialog_tip)
+    String strTip;
+    @BindString(R2.string.update_dialog_mobile_type)
+    String strTipMessage;
     private ListCompositeDisposable mCompositeDisposable;
     private String mContent = "";
     private String mTitle = "";
 
     private void downloadUpdate() {
+        if (isMobileConnected(this)) {
+            new AlertDialog.Builder(this).setTitle(strTip).setMessage(strTipMessage).setPositiveButton(strConfirm, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Downloader.getInstance(UpdateDialogActivity.this).setHoneyCombDownload(true);
+                    startDownloadApp();
+                }
+            }).setNegativeButton(strSoon, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Downloader.getInstance(UpdateDialogActivity.this).setHoneyCombDownload(false);
+                    finish();
+                }
+            }).create().show();
+        } else {
+            startDownloadApp();
+        }
+    }
+
+    public static boolean isMobileConnected(Context context) {
+        ConnectivityManager cm = (ConnectivityManager) context
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        return cm != null && cm.getActiveNetworkInfo() != null
+                && cm.getActiveNetworkInfo().getType() == ConnectivityManager.TYPE_MOBILE;
+    }
+
+    private void startDownloadApp() {
         mBtnDialogSure.setEnabled(false);
         DownloadEntity entity = new DownloadEntity();
         entity.setId(getIntent().getStringExtra(ARG_URL));
@@ -163,12 +197,11 @@ public class UpdateDialogActivity extends AppCompatActivity {
         mCompositeDisposable = new ListCompositeDisposable();
         setContentView(R.layout.activity_dialog_update);
         ButterKnife.bind(this);
-        mBtnDialogSure.setEnabled(false);
+        mBtnDialogSure.setEnabled(Downloader.isBound());
         Downloader.getInstance(this).setOnConnectedListener(new DownloadConnectedListener() {
             @Override
             public void onConnected() {
                 mBtnDialogSure.setEnabled(true);
-                Downloader.getInstance(UpdateDialogActivity.this).setHoneyCombDownload(true);
             }
         });
         Downloader.init(UpdateDialogActivity.this, true);
@@ -188,7 +221,7 @@ public class UpdateDialogActivity extends AppCompatActivity {
                         } else {
                             if (!getPermission()) {
                                 checkPermission();
-                            }else{
+                            } else {
                                 downloadUpdate();
                             }
                         }
