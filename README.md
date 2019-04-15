@@ -14,7 +14,7 @@ allprojects {
 #### Step 2. Add the dependency
 ```
 dependencies {
-	        implementation 'com.github.codyyeachann:AppUpdate:v1.0.3'
+	        implementation 'com.github.codyyeachann:AppUpdate:v1.0.4'
 	}
 ```
 #### Step 3. Use it in your project
