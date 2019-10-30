@@ -3,7 +3,6 @@ package com.a5idoo.library.update.app;
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
@@ -27,19 +26,11 @@ import android.widget.Toast;
 
 import com.codyy.download.Downloader;
 import com.codyy.download.entity.DownloadEntity;
-import com.codyy.download.service.DownloadConnectedListener;
 import com.codyy.download.service.DownloadStatus;
 import com.codyy.download.service.SimpleDownloadListener;
-import com.jakewharton.rxbinding2.view.RxView;
 
 import java.io.File;
-import java.util.concurrent.TimeUnit;
 
-import butterknife.BindString;
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import io.reactivex.functions.Consumer;
-import io.reactivex.internal.disposables.ListCompositeDisposable;
 
 public class UpdateDialogActivity extends AppCompatActivity {
     public static final String ARG_TITLE = "title";
@@ -49,50 +40,20 @@ public class UpdateDialogActivity extends AppCompatActivity {
     public static final String ARG_AUTHORITY = "authority";
     public static final String ARG_APPLICATION_ID = "APPLICATION_ID";
     public static final String ARG_CANCELABLE = "ARG_CANCELABLE";
-    @BindView(R2.id.tv_dialog_title)
     TextView mTvDialogTitle;
-    @BindView(R2.id.tv_dialog_content)
     TextView mTvDialogContent;
-    @BindView(R2.id.btn_dialog_sure)
     Button mBtnDialogSure;
-    @BindString(R2.string.update_dialog_install)
-    String strInstall;
-    @BindString(R2.string.update_dialog_update)
-    String strUpdate;
-    @BindString(R2.string.update_dialog_confirm)
-    String strConfirm;
-    @BindString(R2.string.update_dialog_cancel)
-    String strCancel;
-    @BindString(R2.string.update_dialog_soon)
-    String strSoon;
-    @BindString(R2.string.update_dialog_can_not_open_file_mime_type)
-    String strCannotOpenFile;
-    @BindString(R2.string.update_dialog_open_permission_settings)
-    String strOpenPermissionSettings;
-    @BindString(R2.string.update_dialog_retry)
-    String strRetryDownload;
-    @BindString(R2.string.update_dialog_tip)
-    String strTip;
-    @BindString(R2.string.update_dialog_mobile_type)
-    String strTipMessage;
-    private ListCompositeDisposable mCompositeDisposable;
     private String mContent = "";
     private String mTitle = "";
 
     private void downloadUpdate() {
         if (isMobileConnected(this)) {
-            new AlertDialog.Builder(this).setTitle(strTip).setMessage(strTipMessage).setPositiveButton(strConfirm, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    Downloader.getInstance(UpdateDialogActivity.this).setHoneyCombDownload(true);
-                    startDownloadApp();
-                }
-            }).setNegativeButton(strSoon, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    Downloader.getInstance(UpdateDialogActivity.this).setHoneyCombDownload(false);
-                    finish();
-                }
+            new AlertDialog.Builder(this).setTitle((R.string.update_dialog_tip)).setMessage((R.string.update_dialog_mobile_type)).setPositiveButton(R.string.update_dialog_confirm, (dialog, which) -> {
+                Downloader.getInstance(UpdateDialogActivity.this).setHoneyCombDownload(true);
+                startDownloadApp();
+            }).setNegativeButton(R.string.update_dialog_soon, (dialog, which) -> {
+                Downloader.getInstance(UpdateDialogActivity.this).setHoneyCombDownload(false);
+                finish();
             }).create().show();
         } else {
             startDownloadApp();
@@ -127,24 +88,16 @@ public class UpdateDialogActivity extends AppCompatActivity {
             @Override
             public void onComplete() {
                 mBtnDialogSure.setEnabled(true);
-                mBtnDialogSure.setText(strInstall);
+                mBtnDialogSure.setText(R.string.update_dialog_install);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     boolean haveInstallPermission = getPackageManager().canRequestPackageInstalls();
                     if (haveInstallPermission) {
                         installApp();
                     } else {
                         new AlertDialog.Builder(UpdateDialogActivity.this)
-                                .setMessage(strOpenPermissionSettings)
-                                .setPositiveButton(strConfirm, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        startUnknownAppSources();
-                                    }
-                                })
-                                .setNegativeButton(strCancel, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                    }
+                                .setMessage(R.string.update_dialog_open_permission_settings)
+                                .setPositiveButton(R.string.update_dialog_confirm, (dialog, which) -> startUnknownAppSources())
+                                .setNegativeButton(R.string.update_dialog_cancel, (dialog, which) -> {
                                 })
                                 .show();
                     }
@@ -157,7 +110,7 @@ public class UpdateDialogActivity extends AppCompatActivity {
             public void onError(Exception e) {
                 super.onError(e);
                 mBtnDialogSure.setEnabled(true);
-                mBtnDialogSure.setText(strRetryDownload);
+                mBtnDialogSure.setText(R.string.update_dialog_retry);
 //                Toast.makeText(UpdateDialogActivity.this, "下载失败");
             }
 
@@ -165,7 +118,7 @@ public class UpdateDialogActivity extends AppCompatActivity {
             public void onFailure(int code) {
                 super.onFailure(code);
                 mBtnDialogSure.setEnabled(true);
-                mBtnDialogSure.setText(strRetryDownload);
+                mBtnDialogSure.setText(R.string.update_dialog_retry);
 //                ToastUtil.show(UpdateDialogActivity.this, "下载失败");
             }
         });
@@ -194,16 +147,12 @@ public class UpdateDialogActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mCompositeDisposable = new ListCompositeDisposable();
         setContentView(R.layout.activity_dialog_update);
-        ButterKnife.bind(this);
+        mTvDialogTitle=findViewById(R.id.tv_dialog_title);
+        mTvDialogContent=findViewById(R.id.tv_dialog_content);
+        mBtnDialogSure = findViewById(R.id.btn_dialog_sure);
         mBtnDialogSure.setEnabled(Downloader.isBound());
-        Downloader.getInstance(this).setOnConnectedListener(new DownloadConnectedListener() {
-            @Override
-            public void onConnected() {
-                mBtnDialogSure.setEnabled(true);
-            }
-        });
+        Downloader.getInstance(this).setOnConnectedListener(() -> mBtnDialogSure.setEnabled(true));
         Downloader.init(UpdateDialogActivity.this, true);
         if (null != getIntent()) {
             mTitle = getIntent().getStringExtra(ARG_TITLE);
@@ -211,22 +160,21 @@ public class UpdateDialogActivity extends AppCompatActivity {
         }
         mTvDialogTitle.setText(mTitle);
         mTvDialogContent.setText(mContent);
-        mBtnDialogSure.setText(strUpdate);
-        mCompositeDisposable.add(RxView.clicks(mBtnDialogSure).throttleFirst(400L, TimeUnit.MILLISECONDS)
-                .subscribe(new Consumer<Object>() {
-                    @Override
-                    public void accept(Object o) throws Exception {
-                        if (mBtnDialogSure.isEnabled() && strInstall.equals(mBtnDialogSure.getText().toString())) {
-                            installApp();
-                        } else {
-                            if (!getPermission()) {
-                                checkPermission();
-                            } else {
-                                downloadUpdate();
-                            }
-                        }
-                    }
-                }));
+        mBtnDialogSure.setText(R.string.update_dialog_update);
+        mBtnDialogSure.setOnClickListener(v -> {
+            if (AntiShakeUtils.isInvalidClick(v)) {
+                return;
+            }
+            if (mBtnDialogSure.isEnabled() && getString(R.string.update_dialog_install).equals(mBtnDialogSure.getText().toString())) {
+                installApp();
+            } else {
+                if (!getPermission()) {
+                    checkPermission();
+                } else {
+                    downloadUpdate();
+                }
+            }
+        });
     }
 
 
@@ -274,18 +222,10 @@ public class UpdateDialogActivity extends AppCompatActivity {
                 // Show an expanation to the user *asynchronously* -- don't block
                 // this thread waiting for the user's response! After the user
                 // sees the explanation, try again to request the permission.
-                new AlertDialog.Builder(this).setCancelable(false).setMessage("您未授予下载权限,将无法下载文件,是否授予权限?").setTitle("提示").setPositiveButton(strConfirm, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        ActivityCompat.requestPermissions(UpdateDialogActivity.this,
-                                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                2018);
-                    }
-                }).setNegativeButton(strCancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                new AlertDialog.Builder(this).setCancelable(false).setMessage("您未授予下载权限,将无法下载文件,是否授予权限?").setTitle("提示").setPositiveButton(R.string.update_dialog_confirm, (dialog, which) -> ActivityCompat.requestPermissions(UpdateDialogActivity.this,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        2018)).setNegativeButton(R.string.update_dialog_cancel, (dialog, which) -> {
 
-                    }
                 }).create().show();
             } else {
 
@@ -305,7 +245,6 @@ public class UpdateDialogActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mCompositeDisposable.clear();
         Downloader.getInstance(this).deleteAll();
     }
 
@@ -357,7 +296,7 @@ public class UpdateDialogActivity extends AppCompatActivity {
         if (manager.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY) != null) {
             context.startActivity(intent);
         } else {
-            Toast.makeText(context, strCannotOpenFile, Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, R.string.update_dialog_can_not_open_file_mime_type, Toast.LENGTH_SHORT).show();
             Intent intent1 = new Intent();
             intent1.setAction(Intent.ACTION_MAIN);
             intent1.addCategory(Intent.CATEGORY_APP_MARKET);
