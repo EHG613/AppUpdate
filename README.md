@@ -1,5 +1,5 @@
 # AppUpdate
-应用更新下载库[![](https://jitpack.io/v/codyyeachann/AppUpdate.svg)](https://jitpack.io/#codyyeachann/AppUpdate)
+应用更新下载库[![](https://jitpack.io/v/EHG613/AppUpdate.svg)](https://jitpack.io/#EHG613/AppUpdate)
 ## How to
 #### Step 1. Add the JitPack repository to your build file
 ```
